@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>餐厅经营利润工具包 v1</title>
+    <meta name="description" content="面向餐饮老板的利润体检、菜单成本、单品毛利和售价建议工具。">
+    <link rel="stylesheet" href="style.css?v=20260703-layout-restore">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">餐饮魔咒 Business Tools</p>
+        <h1>10 分钟看清你的餐厅到底有没有赚钱</h1>
+        <p class="header-copy">输入销售额、成本和一道菜的材料用量，自动算出利润、毛利、危险成本和建议售价。</p>
+        <div class="hero-actions">
+          <button class="primary-button" data-jump="profit" type="button">开始利润体检</button>
+          <button class="ghost-inline-button" data-jump="menu" type="button">先算一道菜成本</button>
+        </div>
+      </div>
+      <div class="hero-showcase refined-showcase" aria-label="产品预览">
+        <div class="report-sheet-preview">
+          <div class="sheet-header">
+            <span>经营报告预览 · 示例数据</span>
+            <strong>注意</strong>
+          </div>
+          <div class="sheet-main-number">
+            <span>本月净利润</span>
+            <strong>RM11,900</strong>
+            <small>净利率 19.3%</small>
+          </div>
+          <div class="sheet-lines" aria-hidden="true">
+            <i style="--w: 78%"></i>
+            <i style="--w: 54%"></i>
+            <i style="--w: 68%"></i>
+          </div>
+          <p class="sample-note">这些数字只是示例。填写你的餐厅资料后，报告会使用你的实际数据重新计算。</p>
+        </div>
+        <div class="clean-recipe-card">
+          <span>一道菜成本卡 · 示例数据</span>
+          <strong>Nasi Lemak Ayam</strong>
+          <small>食材 RM3.56 · 建议售价 RM20.90</small>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="side-panel" aria-label="工具导航">
+        <div class="brand-card">
+          <span class="brand-mark">RD</span>
+          <div>
+            <strong>餐厅利润工具</strong>
+            <span>利润 · 成本 · 售价 · 报告</span>
+          </div>
+        </div>
+        <nav class="tool-tabs" aria-label="选择工具">
+          <button class="tab-button active" data-target="overview" type="button">总览</button>
+          <button class="tab-button" data-target="profit" type="button">利润体检</button>
+          <button class="tab-button" data-target="menu" type="button">菜单成本</button>
+          <button class="tab-button" data-target="pricing" type="button">售价建议</button>
+          <button class="tab-button" data-target="report" type="button">报告</button>
+        </nav>
+        <button class="secondary-button" id="sampleButton" type="button">填入示例</button>
+        <button class="ghost-button" id="resetButton" type="button">清空数据</button>
+      </aside>
+
+      <section class="content-panel">
+        <section class="tool-section active" id="overview">
+          <div class="section-heading">
+            <p class="eyebrow">Overview</p>
+            <h2>先看老板最需要的四个答案</h2>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric-card">
+              <span>月销售额</span>
+              <strong id="metricRevenue">RM0.00</strong>
+              <small id="metricRevenueUsd">USD 0.00</small>
+            </article>
+            <article class="metric-card">
+              <span>净利润</span>
+              <strong id="metricProfit">RM0.00</strong>
+              <small id="metricMargin">0.0% 净利率</small>
+            </article>
+            <article class="metric-card">
+              <span>主菜毛利率</span>
+              <strong id="metricGrossMargin">0.0%</strong>
+              <small id="metricGrossProfit">毛利 RM0.00</small>
+            </article>
+            <article class="metric-card status-card">
+              <span>经营状态</span>
+              <strong id="metricStatus">待输入</strong>
+              <small id="metricStatusHint">填写数字后自动判断。</small>
+            </article>
+          </div>
+
+          <div class="notice-row">
+            <div>
+              <strong>从数字看到下一步该怎么做</strong>
+              <p>填写餐厅销售额、成本和菜品材料后，系统会自动整理成清楚的经营结果和行动建议。</p>
+            </div>
+            <button class="primary-button" data-jump="profit" type="button">开始输入</button>
+          </div>
+        </section>
+
+        <section class="tool-section" id="profit">
+          <div class="section-heading">
+            <p class="eyebrow">Profit Checkup</p>
+            <h2>利润体检</h2>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              餐厅名称
+              <input id="restaurantName" type="text" placeholder="例如：ABC Kopitiam">
+            </label>
+            <label>
+              报告月份
+              <input id="reportMonth" type="month">
+            </label>
+            <label>
+              参考货币
+              <select id="referenceCurrency">
+                <option value="USD" data-rate="4.70">USD 美金</option>
+                <option value="SGD" data-rate="3.50">SGD 新币</option>
+                <option value="CNY" data-rate="0.65">CNY 人民币</option>
+                <option value="THB" data-rate="0.13">THB 泰铢</option>
+              </select>
+            </label>
+            <label>
+              汇率：1 个参考货币等于多少 MYR
+              <input id="exchangeRate" type="number" min="0" step="0.01" value="4.70">
+              <small class="field-help">只用来显示其他货币参考价，不会改变 MYR 利润计算。</small>
+            </label>
+          </div>
+
+          <div class="two-column">
+            <div class="input-card">
+              <h3>销售额</h3>
+              <label>堂食销售额 <input class="money-input" id="dineInSales" type="number" min="0" step="0.01"></label>
+              <label>外带销售额 <input class="money-input" id="takeawaySales" type="number" min="0" step="0.01"></label>
+              <label>外卖平台销售额 <input class="money-input" id="deliverySales" type="number" min="0" step="0.01"></label>
+              <label>其他收入 <input class="money-input" id="otherSales" type="number" min="0" step="0.01"></label>
+            </div>
+
+            <div class="input-card">
+              <h3>主要成本</h3>
+              <label>食材与饮料成本 <input class="money-input" id="foodCost" type="number" min="0" step="0.01"></label>
+              <label>员工工资 <input class="money-input" id="laborCost" type="number" min="0" step="0.01"></label>
+              <label>租金 <input class="money-input" id="rentCost" type="number" min="0" step="0.01"></label>
+              <label>水电煤 <input class="money-input" id="utilityCost" type="number" min="0" step="0.01"></label>
+              <label>外卖平台费用 <input class="money-input" id="platformFees" type="number" min="0" step="0.01"></label>
+              <label>营销费用 <input class="money-input" id="marketingCost" type="number" min="0" step="0.01"></label>
+              <label>维修保养 <input class="money-input" id="maintenanceCost" type="number" min="0" step="0.01"></label>
+              <label>其他营运费用 <input class="money-input" id="otherCost" type="number" min="0" step="0.01"></label>
+            </div>
+          </div>
+
+          <div class="instant-results" aria-live="polite">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="eyebrow">Instant Result</p>
+                <h2>利润体检成绩</h2>
+              </div>
+              <button class="primary-button" data-jump="report" type="button">查看完整报告</button>
+            </div>
+
+            <div class="metrics-grid">
+              <article class="metric-card">
+                <span>月销售额</span>
+                <strong id="profitRevenueResult">RM0.00</strong>
+                <small id="profitRevenueUsdResult">USD 0.00</small>
+              </article>
+              <article class="metric-card">
+                <span>总成本</span>
+                <strong id="profitCostResult">RM0.00</strong>
+                <small>包含主要营运费用</small>
+              </article>
+              <article class="metric-card">
+                <span>净利润</span>
+                <strong id="profitNetResult">RM0.00</strong>
+                <small id="profitMarginResult">0.0% 净利率</small>
+              </article>
+              <article class="metric-card status-card-inline">
+                <span>体检状态</span>
+                <strong id="profitStatusResult">待输入</strong>
+                <small id="profitStatusHintResult">填写数字后自动判断。</small>
+              </article>
+            </div>
+
+            <div class="result-card result-card-spaced">
+              <h3>关键比例</h3>
+              <div class="ratio-table" id="profitRatioTable"></div>
+            </div>
+
+            <div class="result-card result-card-spaced">
+              <h3>下一步建议</h3>
+              <ol id="profitActionList" class="action-list"></ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" id="menu">
+          <div class="section-heading">
+            <p class="eyebrow">Menu Cost</p>
+            <h2>菜单成本与单品毛利</h2>
+          </div>
+
+          <div class="notice-row menu-guide">
+            <div>
+              <strong>老板不用自己会算成本</strong>
+              <p>像算卡路里一样，一行填一个材料：买多少钱、买多少克、这道菜用多少克，系统自动算每个材料成本和整道菜食材成本。</p>
+            </div>
+          </div>
+
+          <div class="input-card ingredient-card">
+            <div class="card-title-row">
+              <div>
+                <h3>食材成本计算器</h3>
+                <p>例：鸡肉 RM18 / 1000g，这道菜用 120g，成本就是 RM2.16。</p>
+              </div>
+              <button class="primary-button" id="addIngredientButton" type="button">加材料</button>
+            </div>
+
+            <div class="ingredient-table" role="table" aria-label="食材成本计算器">
+              <div class="ingredient-row ingredient-head" role="row">
+                <span>材料</span>
+                <span>购买价 RM</span>
+                <span>购买数量</span>
+                <span>单位</span>
+                <span>本菜使用量</span>
+                <span>成本</span>
+                <span></span>
+              </div>
+              <div id="ingredientRows"></div>
+            </div>
+
+            <div class="ingredient-total">
+              <span>这道菜食材总成本</span>
+              <strong id="ingredientTotalCost">RM0.00</strong>
+              <button class="secondary-inline" id="useIngredientCostButton" type="button">使用这个食材成本</button>
+            </div>
+          </div>
+
+          <div class="two-column">
+            <div class="input-card">
+              <h3>单一成品</h3>
+              <label>菜品 / 饮品名称 <input id="itemName" type="text" placeholder="例如：Nasi Lemak Ayam"></label>
+              <label>当前售价 <input class="money-input" id="itemPrice" type="number" min="0" step="0.01"></label>
+              <label>食材成本 <input class="money-input" id="itemIngredientCost" type="number" min="0" step="0.01"><small class="field-help">可以手动输入，也可以用上面的食材成本计算器自动带入。</small></label>
+              <label>包装成本 <input class="money-input" id="itemPackagingCost" type="number" min="0" step="0.01"></label>
+              <label>其他单品成本 <input class="money-input" id="itemOtherCost" type="number" min="0" step="0.01"></label>
+              <label>平台抽佣比例 % <input id="commissionRate" type="number" min="0" max="100" step="0.1"></label>
+            </div>
+
+            <div class="result-card">
+              <h3>单品结果</h3>
+              <dl class="result-list">
+                <div><dt>单品总成本</dt><dd id="itemTotalCost">RM0.00</dd></div>
+                <div><dt>平台费用</dt><dd id="itemCommission">RM0.00</dd></div>
+                <div><dt>单品毛利</dt><dd id="itemGrossProfit">RM0.00</dd></div>
+                <div><dt>毛利率</dt><dd id="itemGrossMargin">0.0%</dd></div>
+                <div><dt>参考货币售价</dt><dd id="itemUsdPrice">USD 0.00</dd></div>
+              </dl>
+              <p class="card-note" id="itemAdvice">输入售价和成本后，会自动判断这个单品是否值得继续卖。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" id="pricing">
+          <div class="section-heading">
+            <p class="eyebrow">Pricing</p>
+            <h2>建议售价计算</h2>
+          </div>
+
+          <div class="two-column">
+            <div class="input-card">
+              <h3>目标毛利</h3>
+              <label>目标毛利率 % <input id="targetMargin" type="number" min="1" max="95" step="1" value="65"></label>
+              <label>心理价格尾数
+                <select id="priceEnding">
+                  <option value="0.90">.90</option>
+                  <option value="0.99">.99</option>
+                  <option value="0.00">整数</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="result-card">
+              <h3>建议售价</h3>
+              <div class="big-result" id="suggestedPrice">RM0.00</div>
+              <p id="suggestedUsd">USD 0.00</p>
+              <p class="card-note" id="pricingAdvice">建议售价会根据单品总成本和目标毛利率自动计算。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" id="report">
+          <div class="report-toolbar">
+            <div>
+              <p class="eyebrow">Printable Report</p>
+              <h2>专业经营报告</h2>
+            </div>
+            <button class="primary-button" id="printButton" type="button">打印 / 保存 PDF</button>
+          </div>
+
+          <article class="report-page" id="reportPage">
+            <header class="report-header">
+              <div>
+                <p>餐饮魔咒 Business Tools</p>
+                <h2 id="reportTitle">餐厅经营利润报告</h2>
+              </div>
+              <span id="reportDate">2026-06</span>
+            </header>
+
+            <section class="report-summary">
+              <div>
+                <span>经营状态</span>
+                <strong id="reportStatus">待输入</strong>
+              </div>
+              <div>
+                <span>净利润</span>
+                <strong id="reportProfit">RM0.00</strong>
+              </div>
+              <div>
+                <span>净利率</span>
+                <strong id="reportMargin">0.0%</strong>
+              </div>
+            </section>
+
+            <section class="report-block">
+              <h3>成本比例检查</h3>
+              <div class="ratio-table" id="ratioTable"></div>
+            </section>
+
+            <section class="report-block">
+              <h3>菜单与单品摘要</h3>
+              <p id="menuSummary">还没有输入单品资料。</p>
+            </section>
+
+            <section class="report-block">
+              <h3>建议优先行动</h3>
+              <ol id="actionList"></ol>
+            </section>
+
+            <footer class="report-footer">
+              本报告根据用户输入数字自动生成，仅供经营参考，不构成会计、税务、法律或投资建议。
+            </footer>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="script.js?v=20260703-layout-restore"></script>
+  </body>
+</html>
