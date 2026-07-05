@@ -37,6 +37,108 @@ const usd = new Intl.NumberFormat("en-US", {
 
 let ingredientRows = [];
 let ingredientId = 0;
+let diagnosisGroupIndex = 0;
+let diagnosisAnswers = {};
+
+const STORAGE_KEY = "rdps_toolkit_v2_state";
+
+const diagnosticGroups = [
+  {
+    code: "A",
+    title: "基本资料",
+    questions: [
+      { question_id: "A1", question_text: "你的餐厅类型是什么？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "restaurant", label: "餐厅 / 咖啡店", risk: 0 }, { value: "hawker", label: "档口 / 小吃摊", risk: 0 }, { value: "cloud", label: "Cloud Kitchen", risk: 1 }, { value: "food_truck", label: "Food Truck", risk: 1 }], risk_weight: 1 },
+      { question_id: "A2", question_text: "目前营业多久了？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "under_6m", label: "少过6个月", risk: 2 }, { value: "6m_2y", label: "6个月到2年", risk: 1 }, { value: "over_2y", label: "超过2年", risk: 0 }], risk_weight: 1 },
+      { question_id: "A3", question_text: "每周营业几天？", input_type: "number", risk_weight: 1 },
+      { question_id: "A4", question_text: "每天平均营业几个小时？", input_type: "number", risk_weight: 1 },
+      { question_id: "A5", question_text: "你是否有固定记录每日营业额？", input_type: "radio", options: [{ value: "yes", label: "每天都有", risk: 0 }, { value: "sometimes", label: "有时才记", risk: 2 }, { value: "no", label: "没有固定记录", risk: 4 }], risk_weight: 4 }
+    ]
+  },
+  {
+    code: "B",
+    title: "营业额与客单价",
+    questions: [
+      { question_id: "B1", question_text: "每天平均几张单？", input_type: "number", risk_weight: 1 },
+      { question_id: "B2", question_text: "平均客单价大约多少 RM？", input_type: "number", risk_weight: 1 },
+      { question_id: "B3", question_text: "过去3个月营业额趋势？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "up", label: "上升", risk: 0 }, { value: "flat", label: "差不多", risk: 1 }, { value: "down", label: "下降", risk: 4 }], risk_weight: 4 },
+      { question_id: "B4", question_text: "外卖平台占营业额比例？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "low", label: "低于20%", risk: 0 }, { value: "medium", label: "20% - 40%", risk: 1 }, { value: "high", label: "超过40%", risk: 3 }], risk_weight: 3 },
+      { question_id: "B5", question_text: "是否知道哪些产品贡献最多营业额？", input_type: "radio", options: [{ value: "yes", label: "知道", risk: 0 }, { value: "roughly", label: "大概知道", risk: 1 }, { value: "no", label: "不知道", risk: 3 }], risk_weight: 3 }
+    ]
+  },
+  {
+    code: "C",
+    title: "食材与饮料成本",
+    questions: [
+      { question_id: "C1", question_text: "是否每月计算 Food Cost？", input_type: "radio", options: [{ value: "yes", label: "每月都有", risk: 0 }, { value: "sometimes", label: "有时才算", risk: 2 }, { value: "no", label: "没有", risk: 5 }], risk_weight: 5 },
+      { question_id: "C2", question_text: "是否有标准配方和份量？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "partial", label: "部分有", risk: 2 }, { value: "no", label: "没有", risk: 4 }], risk_weight: 4 },
+      { question_id: "C3", question_text: "是否每周记录浪费 / 报废？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "sometimes", label: "偶尔", risk: 2 }, { value: "no", label: "没有", risk: 4 }], risk_weight: 4 },
+      { question_id: "C4", question_text: "主要食材价格上涨时，你会多久调整售价？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "fast", label: "1个月内", risk: 0 }, { value: "slow", label: "2-3个月后", risk: 2 }, { value: "never", label: "通常不调", risk: 5 }], risk_weight: 5 },
+      { question_id: "C5", question_text: "是否知道每道主打菜的食材成本？", input_type: "radio", options: [{ value: "yes", label: "知道", risk: 0 }, { value: "some", label: "只知道部分", risk: 2 }, { value: "no", label: "不知道", risk: 5 }], risk_weight: 5 }
+    ]
+  },
+  {
+    code: "D",
+    title: "人工与员工效率",
+    questions: [
+      { question_id: "D1", question_text: "目前全职员工人数？", input_type: "number", risk_weight: 1 },
+      { question_id: "D2", question_text: "目前兼职员工人数？", input_type: "number", risk_weight: 1 },
+      { question_id: "D3", question_text: "是否按高峰/低峰安排人手？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "some", label: "大概安排", risk: 2 }, { value: "no", label: "没有", risk: 4 }], risk_weight: 4 },
+      { question_id: "D4", question_text: "是否知道每小时营业额和人工效率？", input_type: "radio", options: [{ value: "yes", label: "知道", risk: 0 }, { value: "no", label: "不知道", risk: 4 }], risk_weight: 4 },
+      { question_id: "D5", question_text: "老板不在时，店是否能稳定运作？", input_type: "radio", options: [{ value: "stable", label: "可以稳定运作", risk: 0 }, { value: "sometimes", label: "有时会乱", risk: 2 }, { value: "owner_required", label: "必须老板在", risk: 5 }], risk_weight: 5 }
+    ]
+  },
+  {
+    code: "E",
+    title: "租金、水电与固定费用",
+    questions: [
+      { question_id: "E1", question_text: "每月租金 RM？", input_type: "number", risk_weight: 1 },
+      { question_id: "E2", question_text: "每月水电煤 RM？", input_type: "number", risk_weight: 1 },
+      { question_id: "E3", question_text: "是否每月检查固定费用比例？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "sometimes", label: "偶尔", risk: 2 }, { value: "no", label: "没有", risk: 4 }], risk_weight: 4 },
+      { question_id: "E4", question_text: "租约未来12个月是否会涨租？", input_type: "radio", options: [{ value: "no", label: "不会 / 不确定", risk: 1 }, { value: "yes", label: "会", risk: 3 }], risk_weight: 3 },
+      { question_id: "E5", question_text: "是否有检查高耗电设备？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "no", label: "没有", risk: 3 }], risk_weight: 3 }
+    ]
+  },
+  {
+    code: "F",
+    title: "菜单与 SKU",
+    questions: [
+      { question_id: "F1", question_text: "菜单上大约有多少个 SKU / 产品？", input_type: "number", risk_weight: 4 },
+      { question_id: "F2", question_text: "你觉得菜单数量是否太多？", input_type: "radio", options: [{ value: "ok", label: "刚好", risk: 0 }, { value: "not_sure", label: "不确定", risk: 2 }, { value: "too_many", label: "太多", risk: 4 }], risk_weight: 4 },
+      { question_id: "F3", question_text: "是否知道每个 SKU 的销量？", input_type: "radio", options: [{ value: "yes", label: "知道", risk: 0 }, { value: "some", label: "部分知道", risk: 2 }, { value: "no", label: "不知道", risk: 4 }], risk_weight: 4 },
+      { question_id: "F4", question_text: "是否知道每个 SKU 的毛利？", input_type: "radio", options: [{ value: "yes", label: "知道", risk: 0 }, { value: "some", label: "部分知道", risk: 2 }, { value: "no", label: "不知道", risk: 5 }], risk_weight: 5 },
+      { question_id: "F5", question_text: "多久删除一次低销量产品？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "monthly", label: "每月检查", risk: 0 }, { value: "quarterly", label: "每季检查", risk: 1 }, { value: "rarely", label: "很少删除", risk: 4 }], risk_weight: 4 }
+    ]
+  },
+  {
+    code: "G",
+    title: "库存与供应商",
+    questions: [
+      { question_id: "G1", question_text: "多久盘点一次库存？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "weekly", label: "每周", risk: 0 }, { value: "monthly", label: "每月", risk: 1 }, { value: "rarely", label: "很少", risk: 4 }, { value: "never", label: "没有盘点", risk: 6 }], risk_weight: 6 },
+      { question_id: "G2", question_text: "是否有比较供应商价格？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "sometimes", label: "偶尔", risk: 1 }, { value: "no", label: "没有", risk: 3 }], risk_weight: 3 },
+      { question_id: "G3", question_text: "是否记录采购价变化？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "no", label: "没有", risk: 4 }], risk_weight: 4 },
+      { question_id: "G4", question_text: "目前是否有欠供应商款项？", input_type: "radio", options: [{ value: "no", label: "没有", risk: 0 }, { value: "yes", label: "有", risk: 5 }], risk_weight: 5 },
+      { question_id: "G5", question_text: "供应商付款是否经常延迟？", input_type: "radio", options: [{ value: "on_time", label: "准时", risk: 0 }, { value: "sometimes", label: "偶尔延迟", risk: 2 }, { value: "late", label: "经常延迟", risk: 5 }], risk_weight: 5 }
+    ]
+  },
+  {
+    code: "H",
+    title: "老板管理习惯与现金流",
+    questions: [
+      { question_id: "H1", question_text: "现金流大约够撑几周固定费用？", input_type: "number", risk_weight: 6 },
+      { question_id: "H2", question_text: "是否经常现金不够付账单？", input_type: "radio", options: [{ value: "no", label: "不会", risk: 0 }, { value: "sometimes", label: "偶尔", risk: 3 }, { value: "often_short", label: "经常", risk: 6 }], risk_weight: 6 },
+      { question_id: "H3", question_text: "老板是否每月看 P&L / 利润表？", input_type: "select", options: [{ value: "", label: "请选择", risk: 0 }, { value: "monthly", label: "每月看", risk: 0 }, { value: "rarely", label: "很少看", risk: 5 }, { value: "never", label: "没有看", risk: 7 }], risk_weight: 7 },
+      { question_id: "H4", question_text: "老板是否有固定薪水？", input_type: "radio", options: [{ value: "yes", label: "有", risk: 0 }, { value: "no", label: "没有", risk: 5 }], risk_weight: 5 },
+      { question_id: "H5", question_text: "关键决定是否都必须老板本人处理？", input_type: "radio", options: [{ value: "team_can_handle", label: "团队可以处理部分", risk: 0 }, { value: "some_owner", label: "多数还是老板", risk: 3 }, { value: "owner_only", label: "几乎都靠老板", risk: 6 }], risk_weight: 6 }
+    ]
+  }
+];
+
+window.RDPS_DIAGNOSTIC_QUESTION_MAP = diagnosticGroups
+  .flatMap((group) => group.questions)
+  .reduce((map, question) => {
+    map[question.question_id] = question;
+    return map;
+  }, {});
 
 function value(id) {
   const number = Number(fields[id]?.value || 0);
@@ -173,6 +275,7 @@ function statusFor(data) {
 
 function render() {
   const data = calculate();
+  const diagnosis = diagnosisResult(data);
   const [status, statusHint, statusClass] = statusFor(data);
 
   setText("metricRevenue", formatMoney(data.revenue));
@@ -216,11 +319,175 @@ function render() {
   renderRatios(data, "#profitRatioTable");
   renderActions(data);
   renderActions(data, "#profitActionList");
+  renderDiagnosisSummary(diagnosis);
+  renderReportDiagnosis(diagnosis);
+  saveState();
+}
+
+function diagnosisResult(data = calculate()) {
+  if (!window.RDPS_RISK_RULES?.analyze) {
+    return {
+      score: 0,
+      riskLevel: "待输入",
+      answeredCount: 0,
+      totalQuestions: 40,
+      topRisks: [],
+      recommendations: [],
+      knowledge: [],
+      improvement: "完成诊断并输入利润数据后，系统会显示预计改善方向。"
+    };
+  }
+  return window.RDPS_RISK_RULES.analyze(data, diagnosisAnswers);
 }
 
 function setText(id, text) {
   const node = document.querySelector(`#${id}`);
   if (node) node.textContent = text;
+}
+
+function renderDiagnosisQuestions() {
+  const group = diagnosticGroups[diagnosisGroupIndex];
+  const container = document.querySelector("#diagnosisQuestions");
+  if (!group || !container) return;
+
+  setText("diagnosisGroupCode", group.code);
+  setText("diagnosisGroupTitle", group.title);
+  setText("diagnosisGroupCounter", `第 ${diagnosisGroupIndex + 1} 组 / 共 ${diagnosticGroups.length} 组`);
+
+  container.innerHTML = group.questions.map((question) => {
+    const value = diagnosisAnswers[question.question_id] || "";
+    return `
+      <article class="diagnosis-question">
+        <div class="diagnosis-question-title">
+          <strong>${escapeHtml(question.question_text)}</strong>
+          <span>${question.question_id}</span>
+        </div>
+        ${diagnosisInputHtml(question, value)}
+      </article>
+    `;
+  }).join("");
+
+  const prevButton = document.querySelector("#diagnosisPrevButton");
+  const nextButton = document.querySelector("#diagnosisNextButton");
+  if (prevButton) prevButton.disabled = diagnosisGroupIndex === 0;
+  if (nextButton) nextButton.textContent = diagnosisGroupIndex === diagnosticGroups.length - 1 ? "查看报告" : "下一组";
+  updateDiagnosisProgress();
+}
+
+function diagnosisInputHtml(question, value) {
+  if (question.input_type === "number") {
+    return `<label><input data-diagnosis-id="${question.question_id}" type="number" min="0" step="0.01" value="${escapeHtml(value)}" placeholder="输入数字"></label>`;
+  }
+
+  if (question.input_type === "select") {
+    const options = (question.options || []).map((option) => {
+      const selected = String(option.value) === String(value) ? " selected" : "";
+      return `<option value="${escapeHtml(option.value)}"${selected}>${escapeHtml(option.label)}</option>`;
+    }).join("");
+    return `<label><select data-diagnosis-id="${question.question_id}">${options}</select></label>`;
+  }
+
+  return `
+    <div class="diagnosis-options">
+      ${(question.options || []).map((option) => {
+        const checked = String(option.value) === String(value) ? " checked" : "";
+        return `
+          <label>
+            <input data-diagnosis-id="${question.question_id}" name="${question.question_id}" type="radio" value="${escapeHtml(option.value)}"${checked}>
+            <span>${escapeHtml(option.label)}</span>
+          </label>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function updateDiagnosisProgress() {
+  const total = diagnosticGroups.reduce((sum, group) => sum + group.questions.length, 0);
+  const answered = Object.values(diagnosisAnswers).filter((answer) => String(answer || "").trim() !== "").length;
+  const percent = total ? (answered / total) * 100 : 0;
+  setText("diagnosisProgressText", `${answered} / ${total} 已完成`);
+  setText("diagnosisAnsweredCount", `${answered} / ${total}`);
+  const progressBar = document.querySelector("#diagnosisProgressBar");
+  if (progressBar) progressBar.style.width = `${percent}%`;
+}
+
+function renderDiagnosisSummary(diagnosis) {
+  setText("diagnosisScore", `${diagnosis.score} / 100`);
+  setText("diagnosisRiskLevel", diagnosis.riskLevel);
+  setText("diagnosisAnsweredCount", `${diagnosis.answeredCount} / ${diagnosis.totalQuestions}`);
+  updateDiagnosisProgress();
+
+  const list = document.querySelector("#diagnosisTopRisks");
+  if (!list) return;
+  const risks = diagnosis.topRisks?.length
+    ? diagnosis.topRisks.map((risk) => risk.title)
+    : ["完成题目后会显示主要风险。"];
+  list.innerHTML = risks.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+}
+
+function renderReportDiagnosis(diagnosis) {
+  setText("reportHealthScore", `${diagnosis.score} / 100`);
+  setText("reportRiskLevel", diagnosis.riskLevel);
+  setText("reportDiagnosisProgress", `${diagnosis.answeredCount} / ${diagnosis.totalQuestions}`);
+  setText("reportImprovement", diagnosis.improvement);
+
+  const risks = diagnosis.topRisks?.length
+    ? diagnosis.topRisks.map((risk) => `${risk.title}：${risk.reasons?.[0] || "需要优先检查。"}`)
+    : ["完成40题诊断后会显示最大风险。"];
+  const recommendations = diagnosis.recommendations?.length
+    ? diagnosis.recommendations
+    : ["完成诊断后会显示建议。"];
+
+  const riskList = document.querySelector("#reportTopRisks");
+  const recList = document.querySelector("#reportTopRecommendations");
+  if (riskList) riskList.innerHTML = risks.slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  if (recList) recList.innerHTML = recommendations.slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+  const knowledgeList = document.querySelector("#reportKnowledge");
+  if (!knowledgeList) return;
+  const knowledge = diagnosis.knowledge?.length ? diagnosis.knowledge : [{
+    title: "餐厅诊断知识",
+    explanation: "完成利润输入和40题诊断后，这里会显示被触发的餐饮知识解释。",
+    action: "先输入真实数字，再根据风险排序处理。"
+  }];
+  knowledgeList.innerHTML = knowledge.slice(0, 3).map((item) => `
+    <article class="knowledge-card">
+      <h4>${escapeHtml(item.title)}</h4>
+      <p>${escapeHtml(item.explanation)}</p>
+      <p><strong>行动建议：</strong>${escapeHtml(item.action)}</p>
+    </article>
+  `).join("");
+}
+
+function saveState() {
+  const payload = {
+    fields: Object.fromEntries(Object.entries(fields).map(([id, field]) => [id, field.value])),
+    ingredientRows,
+    ingredientId,
+    diagnosisAnswers,
+    diagnosisGroupIndex
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    // localStorage may be unavailable in strict browser modes; calculations still work.
+  }
+}
+
+function loadState() {
+  try {
+    const payload = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    Object.entries(payload.fields || {}).forEach(([id, savedValue]) => {
+      if (fields[id]) fields[id].value = savedValue;
+    });
+    ingredientRows = Array.isArray(payload.ingredientRows) ? payload.ingredientRows : [];
+    ingredientId = Number(payload.ingredientId || ingredientRows.length || 0);
+    diagnosisAnswers = payload.diagnosisAnswers || {};
+    diagnosisGroupIndex = Math.min(Math.max(Number(payload.diagnosisGroupIndex || 0), 0), diagnosticGroups.length - 1);
+  } catch (error) {
+    diagnosisAnswers = {};
+  }
 }
 
 function updateStatusClass(node, statusClass) {
@@ -415,8 +682,52 @@ function fillSample() {
   ].forEach((row) => {
     ingredientRows.push({ id: ingredientId++, ...row });
   });
+  diagnosisAnswers = {
+    A1: "restaurant",
+    A2: "over_2y",
+    A3: "6",
+    A4: "11",
+    A5: "yes",
+    B1: "180",
+    B2: "18",
+    B3: "flat",
+    B4: "medium",
+    B5: "roughly",
+    C1: "sometimes",
+    C2: "partial",
+    C3: "no",
+    C4: "slow",
+    C5: "some",
+    D1: "5",
+    D2: "3",
+    D3: "some",
+    D4: "no",
+    D5: "sometimes",
+    E1: "6500",
+    E2: "2200",
+    E3: "sometimes",
+    E4: "no",
+    E5: "no",
+    F1: "78",
+    F2: "not_sure",
+    F3: "some",
+    F4: "no",
+    F5: "rarely",
+    G1: "rarely",
+    G2: "sometimes",
+    G3: "no",
+    G4: "no",
+    G5: "sometimes",
+    H1: "3",
+    H2: "sometimes",
+    H3: "rarely",
+    H4: "no",
+    H5: "some_owner"
+  };
+  diagnosisGroupIndex = 0;
   fields.itemIngredientCost.value = calculateIngredientTotal().toFixed(2);
   renderIngredientRows();
+  renderDiagnosisQuestions();
   render();
 }
 
@@ -433,7 +744,15 @@ function resetAll() {
   fields.targetMargin.value = "65";
   ingredientRows = [];
   ingredientId = 0;
+  diagnosisAnswers = {};
+  diagnosisGroupIndex = 0;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    // Ignore storage cleanup errors.
+  }
   renderIngredientRows();
+  renderDiagnosisQuestions();
   render();
 }
 
@@ -489,5 +808,37 @@ document.querySelector("#ingredientRows").addEventListener("click", (event) => {
   render();
 });
 
+document.querySelector("#diagnosisQuestions").addEventListener("input", (event) => {
+  const questionId = event.target.dataset.diagnosisId;
+  if (!questionId) return;
+  diagnosisAnswers[questionId] = event.target.value;
+  render();
+});
+
+document.querySelector("#diagnosisQuestions").addEventListener("change", (event) => {
+  const questionId = event.target.dataset.diagnosisId;
+  if (!questionId) return;
+  diagnosisAnswers[questionId] = event.target.value;
+  render();
+});
+
+document.querySelector("#diagnosisPrevButton").addEventListener("click", () => {
+  diagnosisGroupIndex = Math.max(0, diagnosisGroupIndex - 1);
+  renderDiagnosisQuestions();
+  render();
+});
+
+document.querySelector("#diagnosisNextButton").addEventListener("click", () => {
+  if (diagnosisGroupIndex >= diagnosticGroups.length - 1) {
+    switchSection("report", true);
+    return;
+  }
+  diagnosisGroupIndex += 1;
+  renderDiagnosisQuestions();
+  render();
+});
+
+loadState();
 renderIngredientRows();
+renderDiagnosisQuestions();
 render();

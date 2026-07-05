@@ -745,6 +745,204 @@ h3 {
   margin-top: 14px;
 }
 
+.progress-pill {
+  background: #e8f3f1;
+  border: 1px solid #cfe5e1;
+  border-radius: 999px;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 850;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.diagnosis-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+}
+
+.diagnosis-card {
+  display: grid;
+  gap: 18px;
+}
+
+.diagnosis-progress {
+  background: #dbe7e4;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.diagnosis-progress span {
+  background: var(--accent);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 0.2s ease;
+  width: 0%;
+}
+
+.diagnosis-group-head,
+.diagnosis-nav {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.diagnosis-group-head h3 {
+  margin-bottom: 0;
+}
+
+.diagnosis-group-head small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.diagnosis-questions {
+  display: grid;
+  gap: 12px;
+}
+
+.diagnosis-question {
+  background: #f8fbfa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.diagnosis-question label {
+  margin-bottom: 0;
+}
+
+.diagnosis-question-title {
+  align-items: flex-start;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.diagnosis-question-title strong {
+  line-height: 1.45;
+}
+
+.diagnosis-question-title span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.diagnosis-options {
+  display: grid;
+  gap: 8px;
+}
+
+.diagnosis-options label {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+  padding: 10px;
+}
+
+.diagnosis-options input {
+  min-height: auto;
+  width: auto;
+}
+
+.diagnosis-summary-card {
+  align-self: start;
+  position: sticky;
+  top: 16px;
+}
+
+.diagnosis-mini-list {
+  background: #f8fbfa;
+  border-radius: 7px;
+  margin: 16px 0;
+  padding: 12px;
+}
+
+.diagnosis-mini-list strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.diagnosis-mini-list ol,
+.report-diagnosis-grid ol {
+  line-height: 1.65;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.diagnosis-report-summary {
+  margin-top: 12px;
+}
+
+.report-diagnosis-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.report-diagnosis-grid h4,
+.knowledge-card h4 {
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+
+.knowledge-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.knowledge-card {
+  background: #f8fbfa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.knowledge-card p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.knowledge-card p:last-child {
+  margin-bottom: 0;
+}
+
+.improvement-box {
+  background: #eef8f5;
+  border: 1px solid #cfe5e1;
+  border-radius: 8px;
+  margin-top: 18px;
+  padding: 14px;
+}
+
+.improvement-box span {
+  color: var(--accent-dark);
+  display: block;
+  font-size: 12px;
+  font-weight: 850;
+  margin-bottom: 6px;
+}
+
+.improvement-box p {
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
 .action-list {
   line-height: 1.7;
   margin-bottom: 0;
@@ -1112,7 +1310,7 @@ select:focus {
   }
 
   .tool-tabs {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .tab-button {
@@ -1122,8 +1320,14 @@ select:focus {
   .metrics-grid,
   .value-grid,
   .form-grid,
-  .two-column {
+  .two-column,
+  .diagnosis-layout,
+  .report-diagnosis-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .diagnosis-summary-card {
+    position: static;
   }
 }
 
@@ -1192,8 +1396,16 @@ select:focus {
   .value-grid,
   .form-grid,
   .two-column,
+  .diagnosis-layout,
+  .report-diagnosis-grid,
   .report-summary {
     grid-template-columns: 1fr;
+  }
+
+  .diagnosis-group-head,
+  .diagnosis-nav {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .card-title-row,

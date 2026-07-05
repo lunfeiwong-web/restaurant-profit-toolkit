@@ -56,6 +56,7 @@
         <nav class="tool-tabs" aria-label="选择工具">
           <button class="tab-button active" data-target="overview" type="button">总览</button>
           <button class="tab-button" data-target="profit" type="button">利润体检</button>
+          <button class="tab-button" data-target="diagnosis" type="button">40题诊断</button>
           <button class="tab-button" data-target="menu" type="button">菜单成本</button>
           <button class="tab-button" data-target="pricing" type="button">售价建议</button>
           <button class="tab-button" data-target="report" type="button">报告</button>
@@ -196,6 +197,50 @@
             <div class="result-card result-card-spaced">
               <h3>下一步建议</h3>
               <ol id="profitActionList" class="action-list"></ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" id="diagnosis">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Restaurant Diagnosis</p>
+              <h2>40题餐厅诊断</h2>
+            </div>
+            <span class="progress-pill" id="diagnosisProgressText">0 / 40 已完成</span>
+          </div>
+
+          <div class="diagnosis-layout">
+            <div class="input-card diagnosis-card">
+              <div class="diagnosis-progress" aria-label="诊断进度">
+                <span id="diagnosisProgressBar"></span>
+              </div>
+              <div class="diagnosis-group-head">
+                <div>
+                  <p class="eyebrow" id="diagnosisGroupCode">A</p>
+                  <h3 id="diagnosisGroupTitle">基本资料</h3>
+                </div>
+                <small id="diagnosisGroupCounter">第 1 组 / 共 8 组</small>
+              </div>
+              <div id="diagnosisQuestions" class="diagnosis-questions"></div>
+              <div class="diagnosis-nav">
+                <button class="ghost-inline-button" id="diagnosisPrevButton" type="button">上一组</button>
+                <button class="primary-button" id="diagnosisNextButton" type="button">下一组</button>
+              </div>
+            </div>
+
+            <div class="result-card diagnosis-summary-card">
+              <h3>即时诊断摘要</h3>
+              <dl class="result-list">
+                <div><dt>健康评分</dt><dd id="diagnosisScore">0 / 100</dd></div>
+                <div><dt>风险等级</dt><dd id="diagnosisRiskLevel">待输入</dd></div>
+                <div><dt>已完成题目</dt><dd id="diagnosisAnsweredCount">0 / 40</dd></div>
+              </dl>
+              <div class="diagnosis-mini-list">
+                <strong>目前最需要注意</strong>
+                <ol id="diagnosisTopRisks"></ol>
+              </div>
+              <button class="secondary-inline" data-jump="report" type="button">查看报告诊断</button>
             </div>
           </div>
         </section>
@@ -343,6 +388,42 @@
               <ol id="actionList"></ol>
             </section>
 
+            <section class="report-block diagnosis-report-block">
+              <h3>40题餐厅诊断</h3>
+              <section class="report-summary diagnosis-report-summary">
+                <div>
+                  <span>餐厅健康评分</span>
+                  <strong id="reportHealthScore">0 / 100</strong>
+                </div>
+                <div>
+                  <span>风险等级</span>
+                  <strong id="reportRiskLevel">待输入</strong>
+                </div>
+                <div>
+                  <span>已完成题目</span>
+                  <strong id="reportDiagnosisProgress">0 / 40</strong>
+                </div>
+              </section>
+
+              <div class="report-diagnosis-grid">
+                <div>
+                  <h4>最大3个风险</h4>
+                  <ol id="reportTopRisks"></ol>
+                </div>
+                <div>
+                  <h4>最大3个建议</h4>
+                  <ol id="reportTopRecommendations"></ol>
+                </div>
+              </div>
+
+              <div class="knowledge-list" id="reportKnowledge"></div>
+
+              <div class="improvement-box">
+                <span>预计改善效果</span>
+                <p id="reportImprovement">完成诊断并输入利润数据后，系统会显示预计改善方向。</p>
+              </div>
+            </section>
+
             <footer class="report-footer">
               本报告根据用户输入数字自动生成，仅供经营参考，不构成会计、税务、法律或投资建议。
             </footer>
@@ -351,6 +432,8 @@
       </section>
     </main>
 
-    <script src="script.js?v=20260703-layout-restore"></script>
+    <script src="knowledge.js?v=20260705-diagnosis"></script>
+    <script src="rules.js?v=20260705-diagnosis"></script>
+    <script src="script.js?v=20260705-diagnosis"></script>
   </body>
 </html>
