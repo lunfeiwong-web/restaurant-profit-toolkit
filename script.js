@@ -155,7 +155,7 @@ function formatMoney(amount) {
 }
 
 function formatUsd(amount) {
-  const code = fields.referenceCurrency?.value || "USD";
+  const code = fields.referenceCurrency?.value || "SGD";
   const converted = amount / rate();
   try {
     return new Intl.NumberFormat("en-US", {
@@ -481,6 +481,10 @@ function loadState() {
     Object.entries(payload.fields || {}).forEach(([id, savedValue]) => {
       if (fields[id]) fields[id].value = savedValue;
     });
+    if (!["SGD", "TWD", "CNY", "USD"].includes(fields.referenceCurrency.value)) {
+      fields.referenceCurrency.value = "SGD";
+      fields.exchangeRate.value = "3.50";
+    }
     ingredientRows = Array.isArray(payload.ingredientRows) ? payload.ingredientRows : [];
     ingredientId = Number(payload.ingredientId || ingredientRows.length || 0);
     diagnosisAnswers = payload.diagnosisAnswers || {};
@@ -645,8 +649,8 @@ function fillSample() {
   const sample = {
     restaurantName: "ABC Kopitiam",
     reportMonth: "2026-06",
-    referenceCurrency: "USD",
-    exchangeRate: "4.70",
+    referenceCurrency: "SGD",
+    exchangeRate: "3.50",
     dineInSales: "38000",
     takeawaySales: "9200",
     deliverySales: "12800",
@@ -739,8 +743,8 @@ function resetAll() {
       field.value = "";
     }
   });
-  fields.exchangeRate.value = "4.70";
-  fields.referenceCurrency.value = "USD";
+  fields.exchangeRate.value = "3.50";
+  fields.referenceCurrency.value = "SGD";
   fields.targetMargin.value = "65";
   ingredientRows = [];
   ingredientId = 0;
@@ -762,7 +766,7 @@ document.querySelectorAll("input, select").forEach((field) => {
 
 fields.referenceCurrency.addEventListener("change", () => {
   const selected = fields.referenceCurrency.selectedOptions[0];
-  fields.exchangeRate.value = selected?.dataset.rate || "4.70";
+  fields.exchangeRate.value = selected?.dataset.rate || "3.50";
   render();
 });
 

@@ -76,7 +76,7 @@
             <article class="metric-card">
               <span>月销售额</span>
               <strong id="metricRevenue">RM0.00</strong>
-              <small id="metricRevenueUsd">USD 0.00</small>
+              <small id="metricRevenueUsd">参考货币 0.00</small>
             </article>
             <article class="metric-card">
               <span>净利润</span>
@@ -122,16 +122,16 @@
             <label>
               参考货币
               <select id="referenceCurrency">
-                <option value="USD" data-rate="4.70">USD 美金</option>
                 <option value="SGD" data-rate="3.50">SGD 新币</option>
+                <option value="TWD" data-rate="0.15">TWD 台币</option>
                 <option value="CNY" data-rate="0.65">CNY 人民币</option>
-                <option value="THB" data-rate="0.13">THB 泰铢</option>
+                <option value="USD" data-rate="4.70">USD 美金</option>
               </select>
             </label>
             <label>
               汇率：1 个参考货币等于多少 MYR
-              <input id="exchangeRate" type="number" min="0" step="0.01" value="4.70">
-              <small class="field-help">只用来显示其他货币参考价，不会改变 MYR 利润计算。</small>
+              <input id="exchangeRate" type="number" min="0" step="0.01" value="3.50">
+              <small class="field-help">全部利润、成本和售价都以 MYR 马币计算。这里只用来显示参考货币，不会改变 MYR 结果。</small>
             </label>
           </div>
 
@@ -170,7 +170,7 @@
               <article class="metric-card">
                 <span>月销售额</span>
                 <strong id="profitRevenueResult">RM0.00</strong>
-                <small id="profitRevenueUsdResult">USD 0.00</small>
+                <small id="profitRevenueUsdResult">参考货币 0.00</small>
               </article>
               <article class="metric-card">
                 <span>总成本</span>
@@ -305,7 +305,7 @@
                 <div><dt>平台费用</dt><dd id="itemCommission">RM0.00</dd></div>
                 <div><dt>单品毛利</dt><dd id="itemGrossProfit">RM0.00</dd></div>
                 <div><dt>毛利率</dt><dd id="itemGrossMargin">0.0%</dd></div>
-                <div><dt>参考货币售价</dt><dd id="itemUsdPrice">USD 0.00</dd></div>
+                <div><dt>参考货币售价</dt><dd id="itemUsdPrice">参考货币 0.00</dd></div>
               </dl>
               <p class="card-note" id="itemAdvice">输入售价和成本后，会自动判断这个单品是否值得继续卖。</p>
             </div>
@@ -334,7 +334,7 @@
             <div class="result-card">
               <h3>建议售价</h3>
               <div class="big-result" id="suggestedPrice">RM0.00</div>
-              <p id="suggestedUsd">USD 0.00</p>
+              <p id="suggestedUsd">参考货币 0.00</p>
               <p class="card-note" id="pricingAdvice">建议售价会根据单品总成本和目标毛利率自动计算。</p>
             </div>
           </div>
