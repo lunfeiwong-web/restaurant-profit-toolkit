@@ -157,14 +157,7 @@ function formatMoney(amount) {
 function formatUsd(amount) {
   const code = fields.referenceCurrency?.value || "SGD";
   const converted = amount / rate();
-  try {
-    return new Intl.NumberFormat("en-US", {
-      currency: code,
-      style: "currency"
-    }).format(converted);
-  } catch (error) {
-    return `${code} ${converted.toFixed(2)}`;
-  }
+  return `约 ${code} ${converted.toFixed(2)}`;
 }
 
 function pct(numerator, denominator) {
