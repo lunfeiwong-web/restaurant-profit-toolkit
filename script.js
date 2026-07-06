@@ -550,7 +550,7 @@ function renderIngredientRows() {
   if (!container) return;
 
   if (!ingredientRows.length) {
-    container.innerHTML = `<div class="ingredient-row"><span class="field-help">先按“加材料”，例如鸡肉、米、酱料、油、配菜。</span></div>`;
+    container.innerHTML = `<div class="ingredient-row"><span class="field-help">先按“加一个食材”。一道菜可以加入很多行，例如鸡肉、米、酱料、油、配菜、包装前处理损耗等。</span></div>`;
     return;
   }
 

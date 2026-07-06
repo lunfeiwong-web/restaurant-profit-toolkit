@@ -254,17 +254,17 @@
           <div class="notice-row menu-guide">
             <div>
               <strong>老板不用自己会算成本</strong>
-              <p>像算卡路里一样，一行填一个材料：买多少钱、买多少克、这道菜用多少克，系统自动算每个材料成本和整道菜食材成本。</p>
+              <p>这不是只能算一个食材。像算卡路里一样，一行填一个材料：鸡肉、米、酱料、油、配菜都可以逐行加入，系统会自动加总成这一道菜的食材总成本。</p>
             </div>
           </div>
 
           <div class="input-card ingredient-card">
             <div class="card-title-row">
               <div>
-                <h3>食材成本计算器</h3>
-                <p>例：鸡肉 RM18 / 1000g，这道菜用 120g，成本就是 RM2.16。</p>
+                <h3>一道菜多食材成本卡</h3>
+                <p>每一行是一种食材。例：鸡肉 RM18 / 1000g，这道菜用 120g，成本就是 RM2.16。继续按“加一个食材”可加入米、酱料、油、配菜等。</p>
               </div>
-              <button class="primary-button" id="addIngredientButton" type="button">加材料</button>
+              <button class="primary-button" id="addIngredientButton" type="button">加一个食材</button>
             </div>
 
             <div class="ingredient-table" role="table" aria-label="食材成本计算器">
@@ -281,7 +281,7 @@
             </div>
 
             <div class="ingredient-total">
-              <span>这道菜食材总成本</span>
+              <span>这一道菜全部食材总成本</span>
               <strong id="ingredientTotalCost">RM0.00</strong>
               <button class="secondary-inline" id="useIngredientCostButton" type="button">使用这个食材成本</button>
             </div>
