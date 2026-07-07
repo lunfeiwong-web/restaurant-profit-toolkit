@@ -616,25 +616,26 @@ function renderRatios(data, target = "#ratioTable") {
 }
 
 function renderReportCharts(data) {
-  renderMoneyChart(data);
+  renderSalesChart(data);
   renderCostChart(data);
 }
 
-function renderMoneyChart(data) {
-  const chart = document.querySelector("#reportMoneyChart");
+function renderSalesChart(data) {
+  const chart = document.querySelector("#reportSalesChart");
   if (!chart) return;
   if (!data.revenue) {
-    chart.innerHTML = `<p class="chart-empty">输入销售额和成本后，这里会显示销售额、总成本和净利润图表。</p>`;
+    chart.innerHTML = `<p class="chart-empty">输入堂食、外带、外卖或其他收入后，这里会显示销售来源占比图。</p>`;
     return;
   }
 
   const rows = [
-    { label: "销售额", value: data.revenue, className: "" },
-    { label: "总成本", value: data.totalCost, className: "chart-fill-cost" },
-    { label: "净利润", value: Math.max(data.profit, 0), className: data.profit < 0 ? "chart-fill-danger" : "chart-fill-profit" }
-  ];
-  const maxValue = Math.max(...rows.map((row) => row.value), 1);
-  chart.innerHTML = rows.map((row) => chartRow(row.label, formatMoney(row.value), pct(row.value, maxValue), row.className)).join("");
+    { label: "堂食", value: value("dineInSales"), color: "#2f6f6b" },
+    { label: "外带", value: value("takeawaySales"), color: "#e4a72d" },
+    { label: "外卖平台", value: value("deliverySales"), color: "#c95f37" },
+    { label: "其他收入", value: value("otherSales"), color: "#7b8a8b" }
+  ].filter((row) => row.value > 0);
+
+  chart.innerHTML = pieChartMarkup(rows, "销售来源");
 }
 
 function renderCostChart(data) {
@@ -646,39 +647,85 @@ function renderCostChart(data) {
   }
 
   const rows = [
-    ["食材", data.costs.food],
-    ["人工", data.costs.labor],
-    ["租金", data.costs.rent],
-    ["水电煤", data.costs.utility],
-    ["平台费", data.costs.platform],
-    ["其他", data.costs.marketing + data.costs.maintenance + data.costs.other]
-  ].filter(([, value]) => value > 0);
+    { label: "食材", value: data.costs.food, color: "#2f6f6b" },
+    { label: "人工", value: data.costs.labor, color: "#e4a72d" },
+    { label: "租金", value: data.costs.rent, color: "#c95f37" },
+    { label: "水电煤", value: data.costs.utility, color: "#527ac2" },
+    { label: "平台费", value: data.costs.platform, color: "#7b8a8b" },
+    { label: "其他", value: data.costs.marketing + data.costs.maintenance + data.costs.other, color: "#9a6fb0" }
+  ].filter((row) => row.value > 0);
 
   if (!rows.length) {
     chart.innerHTML = `<p class="chart-empty">还没有输入成本。填写成本后，图表会自动出现。</p>`;
     return;
   }
 
-  chart.innerHTML = rows
-    .map(([label, value]) => {
-      const percent = pct(value, data.revenue);
-      const levelClass = percent > 35 ? "chart-fill-danger" : percent > 20 ? "chart-fill-cost" : "";
-      return chartRow(label, `${formatMoney(value)} · ${percent.toFixed(1)}%`, Math.min(percent, 100), levelClass);
-    })
-    .join("");
+  chart.innerHTML = pieChartMarkup(rows, "成本结构");
 }
 
-function chartRow(label, valueText, percent, className = "") {
-  const width = Math.max(0, Math.min(percent, 100));
-  return `
-    <div class="chart-row">
-      <div class="chart-row-head">
-        <span>${escapeHtml(label)}</span>
-        <strong>${escapeHtml(valueText)}</strong>
+function pieChartMarkup(rows, title) {
+  const total = rows.reduce((sum, row) => sum + row.value, 0);
+  if (!total) {
+    return `<p class="chart-empty">填写资料后，这里会自动显示${escapeHtml(title)}图表。</p>`;
+  }
+
+  let current = 0;
+  const center = 100;
+  const radius = 82;
+  const segments = rows.map((row) => {
+    const start = current;
+    const percent = row.value / total;
+    current += percent;
+    return pieSlice(center, center, radius, start, current, row.color);
+  }).join("");
+
+  const labels = rows.map((row) => {
+    const percent = pct(row.value, total);
+    return `
+      <div class="pie-legend-row">
+        <span class="pie-dot" style="background:${row.color}"></span>
+        <span>${escapeHtml(row.label)}</span>
+        <strong>${percent.toFixed(1)}%</strong>
+        <em>${formatMoney(row.value)}</em>
       </div>
-      <div class="chart-track"><span class="chart-fill ${className}" style="--w: ${width.toFixed(1)}%"></span></div>
+    `;
+  }).join("");
+
+  return `
+    <div class="pie-chart-wrap">
+      <svg class="pie-svg" viewBox="0 0 200 200" role="img" aria-label="${escapeHtml(title)}">
+        <circle cx="100" cy="100" r="84" fill="#eef3f1"></circle>
+        ${segments}
+        <circle cx="100" cy="100" r="42" fill="#ffffff"></circle>
+        <text x="100" y="96" text-anchor="middle" class="pie-center-label">${escapeHtml(title)}</text>
+        <text x="100" y="118" text-anchor="middle" class="pie-center-value">${formatMoney(total)}</text>
+      </svg>
+      <div class="pie-legend">
+        ${labels}
+      </div>
     </div>
   `;
+}
+
+function pieSlice(cx, cy, r, startRatio, endRatio, color) {
+  const start = polarToCartesian(cx, cy, r, startRatio);
+  const end = polarToCartesian(cx, cy, r, endRatio);
+  const largeArc = endRatio - startRatio > 0.5 ? 1 : 0;
+  const d = [
+    `M ${cx} ${cy}`,
+    `L ${start.x} ${start.y}`,
+    `A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`,
+    "Z"
+  ].join(" ");
+  return `<path d="${d}" fill="${color}" stroke="#ffffff" stroke-width="2"></path>`;
+}
+
+function polarToCartesian(cx, cy, r, ratio) {
+  const angle = (ratio * 360 - 90) * Math.PI / 180;
+  return {
+    x: cx + (r * Math.cos(angle)),
+    y: cy + (r * Math.sin(angle))
+  };
 }
 
 function renderActions(data, target = "#actionList") {

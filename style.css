@@ -1229,61 +1229,74 @@ select:focus {
   margin: 0 0 14px;
 }
 
-.report-bar-chart {
+.report-pie-chart {
+  min-height: 230px;
+}
+
+.pie-chart-wrap {
+  align-items: center;
   display: grid;
-  gap: 12px;
+  gap: 16px;
+  grid-template-columns: minmax(150px, 190px) 1fr;
 }
 
-.chart-row {
+.pie-svg {
+  display: block;
+  height: auto;
+  max-width: 190px;
+  width: 100%;
+}
+
+.pie-center-label {
+  fill: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.pie-center-value {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.pie-legend {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
-.chart-row-head {
-  align-items: baseline;
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
+.pie-legend-row {
+  align-items: center;
+  border-bottom: 1px solid rgba(34, 51, 51, 0.08);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 10px minmax(58px, 1fr) 54px minmax(74px, auto);
+  padding-bottom: 8px;
 }
 
-.chart-row-head span {
+.pie-legend-row span {
   color: var(--muted);
   font-size: 12px;
   font-weight: 850;
 }
 
-.chart-row-head strong {
+.pie-legend-row strong {
   color: var(--text);
   font-size: 13px;
   text-align: right;
 }
 
-.chart-track {
-  background: #dbe7e4;
+.pie-legend-row em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  text-align: right;
+}
+
+.pie-dot {
   border-radius: 999px;
-  height: 12px;
-  overflow: hidden;
-}
-
-.chart-fill {
-  background: var(--accent);
-  border-radius: inherit;
   display: block;
-  height: 100%;
-  min-width: 3px;
-  width: var(--w);
-}
-
-.chart-fill-cost {
-  background: var(--warning);
-}
-
-.chart-fill-profit {
-  background: var(--success);
-}
-
-.chart-fill-danger {
-  background: var(--danger);
+  height: 10px;
+  width: 10px;
 }
 
 .chart-empty {
@@ -1483,6 +1496,15 @@ select:focus {
   .report-chart-grid,
   .report-summary {
     grid-template-columns: 1fr;
+  }
+
+  .pie-chart-wrap {
+    justify-items: center;
+    grid-template-columns: 1fr;
+  }
+
+  .pie-legend {
+    width: 100%;
   }
 
   .diagnosis-group-head,
