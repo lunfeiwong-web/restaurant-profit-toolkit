@@ -42,6 +42,25 @@ let diagnosisAnswers = {};
 
 const STORAGE_KEY = "rdps_toolkit_v2_state";
 
+function clearSavedState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    // Ignore storage cleanup errors.
+  }
+}
+
+function applyFreshStartFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const shouldClear = ["fresh", "new", "blank", "clear"].some((key) => params.get(key) === "1");
+  if (!shouldClear) return;
+  clearSavedState();
+  ["fresh", "new", "blank", "clear"].forEach((key) => params.delete(key));
+  const cleanQuery = params.toString();
+  const cleanUrl = `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}${window.location.hash}`;
+  window.history.replaceState({}, "", cleanUrl);
+}
+
 const diagnosticGroups = [
   {
     code: "A",
@@ -743,11 +762,7 @@ function resetAll() {
   ingredientId = 0;
   diagnosisAnswers = {};
   diagnosisGroupIndex = 0;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (error) {
-    // Ignore storage cleanup errors.
-  }
+  clearSavedState();
   renderIngredientRows();
   renderDiagnosisQuestions();
   render();
@@ -835,6 +850,7 @@ document.querySelector("#diagnosisNextButton").addEventListener("click", () => {
   render();
 });
 
+applyFreshStartFromUrl();
 loadState();
 renderIngredientRows();
 renderDiagnosisQuestions();
