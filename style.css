@@ -1211,6 +1211,88 @@ select:focus {
   margin-top: 24px;
 }
 
+.report-chart-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.report-chart-card {
+  background: #f8fbfa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.report-chart-card h4 {
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+
+.report-bar-chart {
+  display: grid;
+  gap: 12px;
+}
+
+.chart-row {
+  display: grid;
+  gap: 7px;
+}
+
+.chart-row-head {
+  align-items: baseline;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.chart-row-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.chart-row-head strong {
+  color: var(--text);
+  font-size: 13px;
+  text-align: right;
+}
+
+.chart-track {
+  background: #dbe7e4;
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.chart-fill {
+  background: var(--accent);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  width: var(--w);
+}
+
+.chart-fill-cost {
+  background: var(--warning);
+}
+
+.chart-fill-profit {
+  background: var(--success);
+}
+
+.chart-fill-danger {
+  background: var(--danger);
+}
+
+.chart-empty {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
 .ratio-table {
   border-top: 1px solid var(--line);
 }
@@ -1398,6 +1480,7 @@ select:focus {
   .two-column,
   .diagnosis-layout,
   .report-diagnosis-grid,
+  .report-chart-grid,
   .report-summary {
     grid-template-columns: 1fr;
   }

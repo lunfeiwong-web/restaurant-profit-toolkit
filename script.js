@@ -331,6 +331,7 @@ function render() {
   renderRatios(data, "#profitRatioTable");
   renderActions(data);
   renderActions(data, "#profitActionList");
+  renderReportCharts(data);
   renderDiagnosisSummary(diagnosis);
   renderReportDiagnosis(diagnosis);
   saveState();
@@ -612,6 +613,72 @@ function renderRatios(data, target = "#ratioTable") {
       return `<div class="ratio-row"><span>${label}</span><strong>${percent.toFixed(1)}%</strong><span class="ratio-pill pill-${level}">${text}</span></div>`;
     })
     .join("");
+}
+
+function renderReportCharts(data) {
+  renderMoneyChart(data);
+  renderCostChart(data);
+}
+
+function renderMoneyChart(data) {
+  const chart = document.querySelector("#reportMoneyChart");
+  if (!chart) return;
+  if (!data.revenue) {
+    chart.innerHTML = `<p class="chart-empty">输入销售额和成本后，这里会显示销售额、总成本和净利润图表。</p>`;
+    return;
+  }
+
+  const rows = [
+    { label: "销售额", value: data.revenue, className: "" },
+    { label: "总成本", value: data.totalCost, className: "chart-fill-cost" },
+    { label: "净利润", value: Math.max(data.profit, 0), className: data.profit < 0 ? "chart-fill-danger" : "chart-fill-profit" }
+  ];
+  const maxValue = Math.max(...rows.map((row) => row.value), 1);
+  chart.innerHTML = rows.map((row) => chartRow(row.label, formatMoney(row.value), pct(row.value, maxValue), row.className)).join("");
+}
+
+function renderCostChart(data) {
+  const chart = document.querySelector("#reportCostChart");
+  if (!chart) return;
+  if (!data.revenue) {
+    chart.innerHTML = `<p class="chart-empty">输入销售额后，这里会显示各项成本占销售额的比例。</p>`;
+    return;
+  }
+
+  const rows = [
+    ["食材", data.costs.food],
+    ["人工", data.costs.labor],
+    ["租金", data.costs.rent],
+    ["水电煤", data.costs.utility],
+    ["平台费", data.costs.platform],
+    ["其他", data.costs.marketing + data.costs.maintenance + data.costs.other]
+  ].filter(([, value]) => value > 0);
+
+  if (!rows.length) {
+    chart.innerHTML = `<p class="chart-empty">还没有输入成本。填写成本后，图表会自动出现。</p>`;
+    return;
+  }
+
+  chart.innerHTML = rows
+    .map(([label, value]) => {
+      const percent = pct(value, data.revenue);
+      const levelClass = percent > 35 ? "chart-fill-danger" : percent > 20 ? "chart-fill-cost" : "";
+      return chartRow(label, `${formatMoney(value)} · ${percent.toFixed(1)}%`, Math.min(percent, 100), levelClass);
+    })
+    .join("");
+}
+
+function chartRow(label, valueText, percent, className = "") {
+  const width = Math.max(0, Math.min(percent, 100));
+  return `
+    <div class="chart-row">
+      <div class="chart-row-head">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(valueText)}</strong>
+      </div>
+      <div class="chart-track"><span class="chart-fill ${className}" style="--w: ${width.toFixed(1)}%"></span></div>
+    </div>
+  `;
 }
 
 function renderActions(data, target = "#actionList") {
